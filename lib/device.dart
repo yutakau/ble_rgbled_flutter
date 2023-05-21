@@ -257,32 +257,44 @@ class _MyHomePageState extends State<MyHomePage> {
                 },
               ),
             ]),
-            new Slider(
-              label: '${_val_g}',
-              min: 0,
-              max: 255,
-              value: _slidervalue_g,
-              onChanged: (double value) {
-                setState(() {
-                  _slidervalue_g = value;
-                  _val_g = (_slidervalue_g).toInt();
-                  _writeLed();
-                });
-              },
-            ),
-            new Slider(
-              label: '${_val_b}',
-              min: 0,
-              max: 255,
-              value: _slidervalue_b,
-              onChanged: (double value) {
-                setState(() {
-                  _slidervalue_b = value;
-                  _val_b = (value).toInt();
-                  _writeLed();
-                });
-              },
-            ),
+            Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
+              new Text(
+                'R: $_counter',
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+              new Slider(
+                label: '${_val_g}',
+                min: 0,
+                max: 255,
+                value: _slidervalue_g,
+                onChanged: (double value) {
+                  setState(() {
+                    _slidervalue_g = value;
+                    _val_g = (_slidervalue_g).toInt();
+                    _writeLed();
+                  });
+                },
+              ),
+            ]),
+            Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
+              new Text(
+                'R: $_counter',
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+              new Slider(
+                label: '${_val_b}',
+                min: 0,
+                max: 255,
+                value: _slidervalue_b,
+                onChanged: (double value) {
+                  setState(() {
+                    _slidervalue_b = value;
+                    _val_b = (value).toInt();
+                    _writeLed();
+                  });
+                },
+              ),
+            ]),
             FloatingActionButton(
               onPressed: _discoverDevice,
               tooltip: 'discover',
