@@ -259,7 +259,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ]),
             Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
               new Text(
-                'R: $_counter',
+                'G: $_counter',
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               new Slider(
@@ -278,7 +278,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ]),
             Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
               new Text(
-                'R: $_counter',
+                'B: $_val_b',
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               new Slider(
