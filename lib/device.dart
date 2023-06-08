@@ -40,41 +40,73 @@ class _MyHomePageState extends State<MyHomePage> {
 
   BluetoothDevice? _targetDevice;
 
+  void _show_BLE_disabled() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+          title: const Text("BLE Setting Alert"),
+          content: const Text("BLE is not enabled."),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text("Close"),
+            )
+          ]),
+    );
+  }
+
   Future _discoverDevice() async {
+    // デバイスのBLEイネーブルの状態を正しく取得できない。BLEをユーザーがオフにしていても、onが返る。
+    // xoeria ace3, ZTE A103で状況同じ。FlutterPlusのバグと思われ、これをどう対応するか検討必要。
+    //if (flutterBluePlus.state == BluetoothState.off) {
+    //  _show_BLE_disabled();
+    //  print("flutterBluePlus.state :off");
+    //} else {
+    //  print("flutterBluePlus.state :on");
+    //}
+    var results;
+
     print("scan target device");
     String uuid;
     setState(() {
       _bleScanning = true;
     });
     try {
-      final results = await FlutterBluePlus.instance.startScan(
+      //final results = await FlutterBluePlus.instance.startScan(
+      results = await FlutterBluePlus.instance.startScan(
           timeout: const Duration(seconds: 4),
           withServices: [Guid(SERVICE_UUID)]);
     } catch (e) {
       print('An Error occurd on scanning. $e');
     }
-    List<ScanResult> scanResultsList = [];
-    StreamSubscription subscription =
-        FlutterBluePlus.instance.scanResults.listen((List<ScanResult> results) {
-      scanResultsList.addAll(results);
-      scanResultsList = scanResultsList.toSet().toList();
-      for (ScanResult result in scanResultsList) {
-        print(
-            "Device ${result.device.name} ID ${result.device.id} RSSI ${result.rssi}");
-        uuid = result.advertisementData.serviceUuids.toString();
-        print(
-            "localName ${result.advertisementData.localName}  serviceUUID {$uuid}");
-        _targetDevice = result.device;
-      }
-    });
-    await Future.delayed(Duration(seconds: 4));
-    await subscription.cancel();
+    print(results?.toString());
+    _targetDevice = results?[0].device;
+
+//    List<ScanResult> scanResultsList = [];
+//    StreamSubscription subscription =
+//        FlutterBluePlus.instance.scanResults.listen((List<ScanResult> results) {
+//      scanResultsList.addAll(results);
+//      scanResultsList = scanResultsList.toSet().toList();
+//      for (ScanResult result in scanResultsList) {
+//        print(
+//            "Device ${result.device.name} ID ${result.device.id} RSSI ${result.rssi}");
+//        uuid = result.advertisementData.serviceUuids.toString();
+//        print(
+//            "localName ${result.advertisementData.localName}  serviceUUID {$uuid}");
+//        _targetDevice = result.device;
+//        print("_targetDevice set.");
+//      }
+//    });
+//    await Future.delayed(Duration(seconds: 4));
+//    await subscription.cancel();
     await FlutterBluePlus.instance.stopScan();
 
     if (_targetDevice != null) {
       _connectToDevice();
     } else {
-      print("Error. targetdevice is null");
+      print("Error. targetdevice is null.....");
     }
     setState(() {
       _bleScanning = false;
@@ -229,7 +261,7 @@ class _MyHomePageState extends State<MyHomePage> {
     } else {
       return Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
             Text(
               'BLE RGB Sample',
@@ -238,63 +270,69 @@ class _MyHomePageState extends State<MyHomePage> {
               'Button Count : $_counter',
               style: Theme.of(context).textTheme.headlineSmall,
             ),
-            Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
-              new Text(
-                'R: $_counter',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              new Slider(
-                label: '${_val_r}',
-                min: 0,
-                max: 255.0,
-                value: _slidervalue_r,
-                onChanged: (double value) {
-                  setState(() {
-                    _slidervalue_r = value;
-                    _val_r = (_slidervalue_r).toInt();
-                    _writeLed();
-                  });
-                },
-              ),
-            ]),
-            Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
-              new Text(
-                'G: $_counter',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              new Slider(
-                label: '${_val_g}',
-                min: 0,
-                max: 255,
-                value: _slidervalue_g,
-                onChanged: (double value) {
-                  setState(() {
-                    _slidervalue_g = value;
-                    _val_g = (_slidervalue_g).toInt();
-                    _writeLed();
-                  });
-                },
-              ),
-            ]),
-            Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
-              new Text(
-                'B: $_val_b',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              new Slider(
-                label: '${_val_b}',
-                min: 0,
-                max: 255,
-                value: _slidervalue_b,
-                onChanged: (double value) {
-                  setState(() {
-                    _slidervalue_b = value;
-                    _val_b = (value).toInt();
-                    _writeLed();
-                  });
-                },
-              ),
-            ]),
+            Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  new Text(
+                    'R: $_val_r',
+                    style: Theme.of(context).textTheme.bodyLarge,
+                  ),
+                  new Slider(
+                    label: '${_val_r}',
+                    min: 0,
+                    max: 255.0,
+                    value: _slidervalue_r,
+                    onChanged: (double value) {
+                      setState(() {
+                        _slidervalue_r = value;
+                        _val_r = (_slidervalue_r).toInt();
+                        _writeLed();
+                      });
+                    },
+                  ),
+                ]),
+            Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  new Text(
+                    'G: $_val_g',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                  new Slider(
+                    label: '${_val_g}',
+                    min: 0,
+                    max: 255,
+                    value: _slidervalue_g,
+                    onChanged: (double value) {
+                      setState(() {
+                        _slidervalue_g = value;
+                        _val_g = (_slidervalue_g).toInt();
+                        _writeLed();
+                      });
+                    },
+                  ),
+                ]),
+            Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  new Text(
+                    'B: $_val_b',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                  new Slider(
+                    label: '${_val_b}',
+                    min: 0,
+                    max: 255,
+                    value: _slidervalue_b,
+                    onChanged: (double value) {
+                      setState(() {
+                        _slidervalue_b = value;
+                        _val_b = (value).toInt();
+                        _writeLed();
+                      });
+                    },
+                  ),
+                ]),
             FloatingActionButton(
               onPressed: _discoverDevice,
               tooltip: 'discover',
