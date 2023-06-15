@@ -40,6 +40,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   BluetoothDevice? _targetDevice;
 
+
   void _show_BLE_disabled() {
     showDialog(
       context: context,
@@ -57,6 +58,14 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  Future<bool> _blueIsOn() async {
+    final isOn = await flutterBluePlus.isOn;
+    if (isOn) return true;
+
+    await Future.delayed(const Duration(milliseconds:300));
+    return await flutterBluePlus.isOn;
+  }
+
   Future _discoverDevice() async {
     // デバイスのBLEイネーブルの状態を正しく取得できない。BLEをユーザーがオフにしていても、onが返る。
     // xoeria ace3, ZTE A103で状況同じ。FlutterPlusのバグと思われ、これをどう対応するか検討必要。
@@ -64,11 +73,35 @@ class _MyHomePageState extends State<MyHomePage> {
     //  _show_BLE_disabled();
     //  print("flutterBluePlus.state :off");
     //} else {
-    //  print("flutterBluePlus.state :on");
+    //   print("flutterBluePlus.state :on");
     //}
+    //}
+
+    flutterBluePlus.setLogLevel(LogLevel.warning);
+
+    print("loglevel:");
+    print( flutterBluePlus.logLevel );
+
+    final bool isBluetoothOn = await _blueIsOn();
+    if ( !isBluetoothOn ) {
+      print("Not Enabled!.");
+    }else{
+      print("BLE Enabled!.");
+    }
     var results;
 
+    await flutterBluePlus.stopScan();
     print("scan target device");
+
+
+    // 1st time
+//    Timer(Duration(milliseconds: 100), () {
+//      flutterBluePlus.startScan(timeout: const Duration(seconds: 1));
+//    });
+
+//    await Future.delayed(const Duration(milliseconds:1000));
+//    await flutterBluePlus.stopScan();
+
     String uuid;
     setState(() {
       _bleScanning = true;
@@ -82,6 +115,8 @@ class _MyHomePageState extends State<MyHomePage> {
       print('An Error occurd on scanning. $e');
     }
     print(results?.toString());
+
+
     _targetDevice = results?[0].device;
 
 //    List<ScanResult> scanResultsList = [];
@@ -240,7 +275,8 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> _disconnectDevice() async {
-    FlutterBluePlus.instance.turnOff();
+    await FlutterBluePlus.instance.stopScan();
+    await FlutterBluePlus.instance.turnOff();
   }
 
   @override
