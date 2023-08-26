@@ -11,13 +11,19 @@ dependencies:
   flutter:
     sdk: flutter
   # old version
-  flutter_blue_plus: ^1.5.0
+  #flutter_blue_plus: ^1.5.0
 
   # not published & stable yet.
+  permission_handler: any
+
+  #flutter_blue_plus: 1.5.2
   #flutter_blue_plus:
   #  git:
   #    url: https://github.com/boskokg/flutter_blue_plus.git
   #    ref: 1.6.1
+
+  #flutter_blue_plus: 1.7.1   #This version did not work fine..
+  flutter_blue_plus: 1.14.1
 
   cupertino_icons: ^1.0.2
 

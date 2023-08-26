@@ -4,13 +4,13 @@ A new Flutter project.
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
 
-A few resources to get you started if this is your first Flutter project:
+M5Atom Matixを対象に、LED制御とボタンカウントリードを実現するサンプルコード。
+Flutter_blue_plusを使用。Android数機種と、iPhone1機種で動作確認済み。
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+Flutter Blue Plus は 1.10.1　以降の、breaking changeに対応。1.14.11でテスト済
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Read DataのStreamの読み方を新しい書き方に修正したいところ
+
+
+

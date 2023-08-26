@@ -22,7 +22,8 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final FlutterBluePlus flutterBluePlus = FlutterBluePlus.instance;
+  //final FlutterBluePlus flutterBluePlus = FlutterBluePlus.instance;
+
   final String SERVICE_UUID = "ae6e4ee0-da99-11ed-afa1-0242ac120002";
   final String CHARACTERISTIC_BTN_UUID = "b8092e20-da99-11ed-afa1-0242ac120002";
   final String CHARACTERISTIC_LED_UUID = "e7128b62-da99-11ed-afa1-0242ac120002";
@@ -58,49 +59,27 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Future<bool> _blueIsOn() async {
-    final isOn = await flutterBluePlus.isOn;
-    if (isOn) return true;
-
-    await Future.delayed(const Duration(milliseconds:300));
-    return await flutterBluePlus.isOn;
+  Future<bool> _blueIsAvailable() async {
+    //final isOn = await flutterBluePlus.isOn;
+    final isAvailable = await FlutterBluePlus.isAvailable;
+    if (isAvailable) return true;
+    return false;
   }
 
   Future _discoverDevice() async {
-    // デバイスのBLEイネーブルの状態を正しく取得できない。BLEをユーザーがオフにしていても、onが返る。
-    // xoeria ace3, ZTE A103で状況同じ。FlutterPlusのバグと思われ、これをどう対応するか検討必要。
-    //if (flutterBluePlus.state == BluetoothState.off) {
-    //  _show_BLE_disabled();
-    //  print("flutterBluePlus.state :off");
-    //} else {
-    //   print("flutterBluePlus.state :on");
-    //}
-    //}
-
-    flutterBluePlus.setLogLevel(LogLevel.warning);
-
-    print("loglevel:");
-    print( flutterBluePlus.logLevel );
-
-    final bool isBluetoothOn = await _blueIsOn();
-    if ( !isBluetoothOn ) {
+    //flutterBluePlus.setLogLevel(LogLevel.warning);
+    //print("loglevel:");
+    //print( flutterBluePlus.logLevel );
+    final bool isBluetoothAvailable = await _blueIsAvailable();
+    if ( !isBluetoothAvailable ) {
       print("Not Enabled!.");
     }else{
       print("BLE Enabled!.");
     }
     var results;
 
-    await flutterBluePlus.stopScan();
+    await FlutterBluePlus.stopScan();
     print("scan target device");
-
-
-    // 1st time
-//    Timer(Duration(milliseconds: 100), () {
-//      flutterBluePlus.startScan(timeout: const Duration(seconds: 1));
-//    });
-
-//    await Future.delayed(const Duration(milliseconds:1000));
-//    await flutterBluePlus.stopScan();
 
     String uuid;
     setState(() {
@@ -108,7 +87,8 @@ class _MyHomePageState extends State<MyHomePage> {
     });
     try {
       //final results = await FlutterBluePlus.instance.startScan(
-      results = await FlutterBluePlus.instance.startScan(
+      //results = await FlutterBluePlus.instance.startScan(
+      results = await FlutterBluePlus.startScan(
           timeout: const Duration(seconds: 4),
           withServices: [Guid(SERVICE_UUID)]);
     } catch (e) {
@@ -116,27 +96,9 @@ class _MyHomePageState extends State<MyHomePage> {
     }
     print(results?.toString());
 
-
     _targetDevice = results?[0].device;
 
-//    List<ScanResult> scanResultsList = [];
-//    StreamSubscription subscription =
-//        FlutterBluePlus.instance.scanResults.listen((List<ScanResult> results) {
-//      scanResultsList.addAll(results);
-//      scanResultsList = scanResultsList.toSet().toList();
-//      for (ScanResult result in scanResultsList) {
-//        print(
-//            "Device ${result.device.name} ID ${result.device.id} RSSI ${result.rssi}");
-//        uuid = result.advertisementData.serviceUuids.toString();
-//        print(
-//            "localName ${result.advertisementData.localName}  serviceUUID {$uuid}");
-//        _targetDevice = result.device;
-//        print("_targetDevice set.");
-//      }
-//    });
-//    await Future.delayed(Duration(seconds: 4));
-//    await subscription.cancel();
-    await FlutterBluePlus.instance.stopScan();
+    await FlutterBluePlus.stopScan();
 
     if (_targetDevice != null) {
       _connectToDevice();
@@ -153,7 +115,7 @@ class _MyHomePageState extends State<MyHomePage> {
     if ((_targetDevice != null) && (_bleConnected == false)) {
       try {
         await _targetDevice!.connect();
-        print('Connected to ${_targetDevice!.name} , ${_targetDevice!.id}');
+        print('Connected to ${FlutterBluePlus.adapterName} , ${FlutterBluePlus.adapterState}');
         await Future.delayed(Duration(seconds: 2));
         setState(() {
           _bleConnected = true;
@@ -240,8 +202,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
       // Listen to the value changes
       targetCharacteristic.value.listen((event) {
-        print("Characteristic value updated: $event");
+      //targetCharacteristic.onValueReceived(val) {
 
+        print("Characteristic value updated: $event");
         //String receivedData = utf8.decode(event);
         List<int> receivedData = event;
         _counter = receivedData[0];
@@ -275,8 +238,8 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> _disconnectDevice() async {
-    await FlutterBluePlus.instance.stopScan();
-    await FlutterBluePlus.instance.turnOff();
+    await FlutterBluePlus.stopScan();
+    //await FlutterBluePlus.turnOff();
   }
 
   @override
